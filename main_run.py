@@ -75,18 +75,18 @@ class Consumer(threading.Thread):
                     curr_ma20 > curr_ma50 and price_curr <= curr_ma20 :
                     # 0.05%
                     ret = upbit.buy_market_order(self.ticker, cash * 0.9995)
-                    print("매수 주문", ret)
+                    print("Buy Order", ret)
                     if ret == None or "error" in ret:
-                        print("매수 주문 이상")
+                        print("Buy Order Error")
                         continue
 
                     while True:
                         order = upbit.get_order(ret['uuid'])
                         if order != None and len(order['trades']) > 0:
-                            print("매수 주문 처리 완료", order)
+                            print("Buy Order Completed", order)
                             break
                         else:
-                            print("매수 주문 대기 중")
+                            print("Waiting For Buy Order Being Completed")
                             time.sleep(0.5)
 
                     while True:
@@ -99,10 +99,10 @@ class Consumer(threading.Thread):
                         price_sell = pyupbit.get_tick_size(price_sell)
                         ret = upbit.sell_limit_order(self.ticker, price_sell, volume)
                         if ret == None or 'error' in ret:
-                            print("매도 주문 에러")
+                            print("Sell Order Error")
                             time.sleep(0.5)
                         else:
-                            print("매도주문", ret)
+                            print("Sell Order", ret)
                             hold_flag = True
                             break
 
@@ -115,13 +115,13 @@ class Consumer(threading.Thread):
                         if cash == None:
                             continue
 
-                        print("매도완료", cash)
+                        print("Sell Order Completed", cash)
                         hold_flag = False
                         wait_flag = True
 
                 # 3 minutes
                 if i == (5 * 60 * 3):
-                    print(f"[{datetime.datetime.now()}] 현재가 {price_curr}, 목표가 {price_buy}, ma {curr_ma15:.2f}/{curr_ma50:.2f}/{curr_ma120:.2f}, hold_flag {hold_flag}, wait_flag {wait_flag}")
+                    print(f"[{datetime.datetime.now()}] Now_Price {price_curr}, Target_Price {price_buy}, ma {curr_ma15:.2f}/{curr_ma50:.2f}/{curr_ma120:.2f}, hold_flag {hold_flag}, wait_flag {wait_flag}")
                     i = 0
                 i += 1
             except:
