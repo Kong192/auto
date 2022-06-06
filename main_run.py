@@ -23,7 +23,7 @@ class Consumer(threading.Thread):
         self.ma50.extend(df['close'])
         self.ma120.extend(df['close'])
 
-        print(len(self.ma15), len(self.ma20), len(self.ma50), len(self.ma120))
+        # print(len(self.ma15), len(self.ma20), len(self.ma50), len(self.ma120))
 
 
     def run(self):
@@ -37,7 +37,7 @@ class Consumer(threading.Thread):
 
         upbit = pyupbit.Upbit(key0, key1)
         cash  = upbit.get_balance()
-        print("보유현금", cash)
+        print("Initial Cash : ", cash)
 
         i = 0
 
@@ -58,22 +58,21 @@ class Consumer(threading.Thread):
                     bb_upper = curr_ma20 + 2 * numpy.std(self.ma20)
                     bb_under = curr_ma20 - 2 * numpy.std(self.ma20)
 
-                    print(curr_ma15, curr_ma50, curr_ma120)
-                    print(bb_upper, curr_ma20, bb_under)
-
                     price_open = self.q.get()
                     if hold_flag == False:
-                        price_buy  = price_open * 1.01
-                        price_sell = price_open * 1.02
+                        price_buy  = curr_ma20
+                        price_sell = bb_upper
                     wait_flag  = False
 
                 price_curr = pyupbit.get_current_price(self.ticker)
                 if price_curr == None:
                     continue
 
+                # if hold_flag == False and wait_flag == False and \
+                #     price_curr >= price_buy and curr_ma15 >= curr_ma50 and \
+                #     curr_ma15 <= curr_ma50 * 1.03 and curr_ma120 <= curr_ma50 :
                 if hold_flag == False and wait_flag == False and \
-                    price_curr >= price_buy and curr_ma15 >= curr_ma50 and \
-                    curr_ma15 <= curr_ma50 * 1.03 and curr_ma120 <= curr_ma50 :
+                    curr_ma20 > curr_ma50 and price_curr <= curr_ma20 :
                     # 0.05%
                     ret = upbit.buy_market_order(self.ticker, cash * 0.9995)
                     print("매수 주문", ret)
@@ -139,7 +138,7 @@ class Producer(threading.Thread):
         while True:
             price = pyupbit.get_current_price("KRW-BTC")
             self.q.put(price)
-            time.sleep(60)
+            time.sleep(5)
 
 q = queue.Queue()
 Producer(q).start()
