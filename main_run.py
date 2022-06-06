@@ -138,7 +138,7 @@ class Producer(threading.Thread):
         while True:
             price = pyupbit.get_current_price("KRW-BTC")
             self.q.put(price)
-            time.sleep(5)
+            time.sleep(60)
 
 q = queue.Queue()
 Producer(q).start()
