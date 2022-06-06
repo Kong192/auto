@@ -61,7 +61,7 @@ class Consumer(threading.Thread):
                     price_open = self.q.get()
                     if hold_flag == False:
                         price_buy  = curr_ma20
-                        price_sell = bb_upper
+                        price_sell = price_buy * 1.01
                     wait_flag  = False
 
                 price_curr = pyupbit.get_current_price(self.ticker)
